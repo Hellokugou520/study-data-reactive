@@ -3,6 +3,7 @@
  */
 
 import observe from "./observe";
+import Watcher from "./Watcher";
 
 let obj = {
   a: {

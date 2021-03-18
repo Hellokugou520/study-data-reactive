@@ -3,6 +3,7 @@
  */
 
 import observe from "./observe";
+import Dep from "./Dep";
 
 /*
  * @param {对象} data
@@ -11,6 +12,7 @@ import observe from "./observe";
  */
 // 放弃在外部定义变量实现中转，而通过闭包的方式来实现值的读取与修改
 export default function defineReactive(data, key, val) {
+  const dep = new Dep();
   console.log("我是defineReactive", data, key);
   // 只传了两个参数
   if (arguments.length === 2) {
@@ -22,6 +24,12 @@ export default function defineReactive(data, key, val) {
   Object.defineProperty(data, key, {
     get() {
       console.log(`正在访问${key}属性`);
+      if (Dep.target) {
+        dep.depend();
+        if (childOb) {
+          childOb.dep.depend();
+        }
+      }
       return val;
     },
     set(newValue) {
@@ -30,7 +38,9 @@ export default function defineReactive(data, key, val) {
         return;
       }
       val = newValue;
-      observe(newValue);
+      childOb = observe(newValue);
+      // 发布订阅模式，通知dep
+      dep.notify();
     },
   });
 }
